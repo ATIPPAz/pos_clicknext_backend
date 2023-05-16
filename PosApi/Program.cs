@@ -2,6 +2,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.VisualBasic;
 using PosApi.Context;
+using PosApi.Models;
+using PosApi.Services;
+using PosApi.ViewModels.UnitViewModel;
 using System;
 
 
@@ -195,7 +198,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers(x=>x.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true);
+builder.Services.AddControllers(x => x.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true);
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -210,10 +213,64 @@ builder.Services.AddCors(options =>
 // Add services to the container.
 /*try
 {*/
-    var connectString = builder.Configuration.GetConnectionString("mySql");
+var connectString = builder.Configuration.GetConnectionString("mySql");
 
-    builder.Services.AddDbContext<posContext>(
-            options => options.UseMySql(connectString, ServerVersion.AutoDetect(connectString)));
+builder.Services.AddDbContext<posContext>(
+        options =>
+        {
+            options.UseMySql(connectString, ServerVersion.AutoDetect(connectString));
+        });
+builder.Services.AddScoped<UnitRepository>();
+builder.Services.AddScoped<ItemRepository>();
+builder.Services.AddScoped<ReceiptRepository>();
+/*try
+{
+    ;
+    try
+    {
+        throw new Exception("my name ");
+    }
+    catch (Exception ex)
+    {
+        throw;
+    }
+    ;
+}
+catch (Exception ex)
+{
+    ;
+}
+;
+step1();
+void step1()
+{
+   
+        ;
+        step2();
+        ;
+    
+    ;
+    void step2()
+    {
+        ;
+        step3();
+        ;
+        void step3()
+        {
+            try
+            {
+                throw new Exception("my x");
+                *//*throw;*//*
+            }
+            catch(Exception x)
+            {
+                
+                throw;
+            }
+            ;
+        }
+    }
+}*/
 /*}*/
 /*
 catch (Exception E)

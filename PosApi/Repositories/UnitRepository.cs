@@ -1,6 +1,9 @@
-﻿using PosApi.Context;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Storage;
+using PosApi.Context;
 using PosApi.Models;
 using PosApi.ViewModels;
+using PosApi.ViewModels.UnitViewModel;
 using System.Collections.Generic;
 
 namespace PosApi.Services
@@ -12,37 +15,44 @@ namespace PosApi.Services
         {
             _posContext = posContext;
         }
-        /*public List<ItemResponse> getAllItems()
+        public List<unit> getAllUnits()
         {
-            List<ItemResponse> responses = (from item in _posContext.items
-                                            join _unit in _posContext.units on item.unitId equals _unit.unitId
-                                            orderby item.itemId
-                                            select new ItemResponse
-                                            {
-                                                unitId = item.unitId,
-                                                itemName = item.itemName,
-                                                itemPrice = item.itemPrice,
-                                                itemCode = item.itemCode,
-                                                itemId = item.itemId,
-                                                unitName = _unit.unitName
-                                            }).ToList();
-            return responses;
+            List<unit> units = (from unit in _posContext.units
+                                select unit).ToList();
+            
+            return units;
         }
-        public int createItem(item newItem)
+        public int createUnit(unit newUnit)
         {
-            _posContext.items.Add(newItem);
+
+            using (IDbContextTransaction transaction = _posContext.Database.BeginTransaction())
+            {
+                try
+                {
+                    _posContext.units.Add(newUnit);
+                    _posContext.SaveChanges();
+                    transaction.Commit();
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    throw;
+                }
+            }
+
+            return newUnit.unitId;
+        }
+        public void deleteUnit(int id)
+        {
+            unit itemDelete = _posContext.units.Single(item => item.unitId == id);
+            _posContext.units.Remove(itemDelete);
             _posContext.SaveChanges();
-            return newItem.unitId;
         }
-        public void deleteItem(int id)
+        public void updateUnit(unit unitEdit)
         {
-            item itemDelete =  _posContext.items.Single(item => item.itemId == id);
-            _posContext.items.Remove(itemDelete);
+            unit unitUpdate = _posContext.units.Single(item => item.unitId == unitEdit.unitId);
+            unitUpdate.unitName = unitEdit.unitName;
             _posContext.SaveChanges();
         }
-        public ItemResponse updateItem(item item)
-        {
-            return new ItemResponse();
-        }*/
     }
 }

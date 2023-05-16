@@ -1,9 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PosApi.Context;
+using PosApi.helpers;
 using PosApi.Models;
 using PosApi.Services;
 using PosApi.ViewModels.ItemViewModel;
+using System.Transactions;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace PosApi.Controllers
 {
@@ -11,14 +14,14 @@ namespace PosApi.Controllers
     [Route("[controller]/[action]")]
     public class ItemController : ControllerBase
     {
-        readonly posContext _posContext;
+
         readonly ILogger logger;
         readonly ItemRepository itemService;
-        public ItemController(posContext posContext, ILogger<ItemController> logger)
+        ResponseHelper responseHelper = new ResponseHelper();
+        public ItemController(ItemRepository itemService, ILogger<ItemController> logger)
         {
-            _posContext = posContext;
             this.logger = logger;
-            itemService = new ItemRepository(posContext);
+            this.itemService = itemService;
         }
 
 
@@ -28,103 +31,90 @@ namespace PosApi.Controllers
             try
             {
                 List<ItemResponse> items = itemService.getAllItems();
-                return new JsonResult(new ResponseObject<List<ItemResponse>>()
-                {
-                    data = items,
-                    statusCode = Models.StatusCode.successReturn
-                });
+                return responseHelper.JsonGet<List<ItemResponse>>(items);
             }
             catch (Exception ex)
             {
                 logger.LogError(ex.Message, ex);
-                return new JsonResult(new ResponseObject<Error>()
-                {
-                    data = new Error() { message = "server error" },
-                    statusCode = Models.StatusCode.error
-                });
+                return responseHelper.JsonError();
             }
-
-           
         }
 
         [HttpPost]
         public IActionResult updateItem([FromBody] UpdateItemRequest req)
         {
-            try
+            if (req.itemPrice < 0) return responseHelper.JsonError();
+            if (req.unitId < 0) return responseHelper.JsonError();
+            if (string.IsNullOrEmpty(req.itemName)) return responseHelper.JsonError();
+            if (req.itemId < 0) return responseHelper.JsonError();
+            using (TransactionScope transaction = new TransactionScope())
             {
-                itemService.updateItem(req);
-                return new JsonResult(new ResponseObject()
+                try
                 {
-                    data = new object(),
-                    statusCode = Models.StatusCode.successNoReturn
-                });
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex.Message, ex);
-                return new JsonResult(new ResponseObject<Error>()
+                    itemService.updateItem(req);
+                    transaction.Complete();
+                    return responseHelper.JsonUpdate();
+                }
+                catch (Exception ex)
                 {
-                    data =  new Error() { message="server error"},
-                    statusCode = Models.StatusCode.error
-                });
+                    logger.LogError(ex.Message, ex);
+                    transaction.Dispose();
+                    return responseHelper.JsonError();
+                }
             }
-           
         }
 
         [HttpPost]
         public IActionResult deleteItem([FromBody] DeleteItemRequest req)
         {
-            try
+            if (req.itemId <= 0) return responseHelper.JsonError();
+            using (TransactionScope transaction = new TransactionScope())
             {
-                itemService.deleteItem(req.itemId);
-                return new JsonResult(new ResponseObject()
+                try
                 {
-                    data = new object(),
-                    statusCode = Models.StatusCode.successNoReturn
-                });
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex.Message, ex);
-                return new JsonResult(new ResponseObject<Error>()
+                    itemService.deleteItem(req.itemId);
+                    transaction.Complete();
+                    return responseHelper.JsonDelete();
+                }
+                catch (Exception ex)
                 {
-                    data = new Error() { message = "server error" },
-                    statusCode = Models.StatusCode.error
-                });
+                    logger.LogError(ex.Message, ex);
+                    transaction.Dispose();
+                    return responseHelper.JsonError();
+                }
+
             }
-           
         }
 
         [HttpPost]
         public IActionResult createItem([FromBody] ItemCreateRequest itemData)
         {
-            try
+            if (string.IsNullOrEmpty(itemData.itemCode)) return responseHelper.JsonError();
+            if (itemData.itemPrice < 0) return responseHelper.JsonError();
+            if (itemData.unitId <= 0) return responseHelper.JsonError();
+            if (string.IsNullOrEmpty(itemData.itemName)) return responseHelper.JsonError();
+            using (TransactionScope transaction = new TransactionScope())
             {
-                item newItem = new item()
+                try
                 {
-                    itemName = itemData.itemName,
-                    itemCode = itemData.itemCode,
-                    itemPrice = itemData.itemPrice,
-                    unitId = itemData.unitId
-                };
-                int res = itemService.createItem(newItem);
-                return new JsonResult(new ResponseObject()
+                    item newItem = new item()
+                    {
+                        itemName = itemData.itemName,
+                        itemCode = itemData.itemCode,
+                        itemPrice = itemData.itemPrice,
+                        unitId = itemData.unitId
+                    };
+                    int res = itemService.createItem(newItem);
+                    transaction.Complete();
+                    return responseHelper.JsonCreate();
+                }
+                catch (Exception ex)
                 {
-                    data = new object(),
-                    statusCode = Models.StatusCode.created
-                });
+                    logger.LogError(ex.Message, ex);
+                    transaction.Dispose();
+                    return responseHelper.JsonError();
+                }
             }
-            catch (Exception ex)
-            {
-                logger.LogError(ex.Message, ex);
-                return new JsonResult(new ResponseObject<Error>()
-                {
-                    data = new Error() { message = "server error" },
-                    statusCode = Models.StatusCode.error
-                });
-            }
-
-
         }
     }
 }

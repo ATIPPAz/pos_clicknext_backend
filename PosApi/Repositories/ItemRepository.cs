@@ -36,7 +36,7 @@ namespace PosApi.Services
         }
         public void deleteItem(int id)
         {
-            item itemDelete =  _posContext.items.Single(item => item.itemId == id);
+            item itemDelete = _posContext.items.Single(item => item.itemId == id);
             _posContext.items.Remove(itemDelete);
             _posContext.SaveChanges();
         }

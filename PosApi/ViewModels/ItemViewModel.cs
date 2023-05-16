@@ -41,6 +41,6 @@ namespace PosApi.ViewModels.ItemViewModel
         public decimal itemPrice { get; set; }
         [Required]
         public int unitId { get; set; }
-  
+
     }
 }

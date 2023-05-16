@@ -50,12 +50,14 @@ namespace PosApi.ViewModels.ReceiptViewModel
 
     public class receiptdetails
     {
-       /* public int receiptDetailId { get; set; }*/
+        /* public int receiptDetailId { get; set; }*/
 
         /*public int receiptId { get; set; }*/
 
         /*public int itemId { get; set; }*/
 
+
+        public int receiptDetailId { get; set; }
         public int itemQty { get; set; }
 
         public decimal itemPrice { get; set; }
@@ -66,7 +68,7 @@ namespace PosApi.ViewModels.ReceiptViewModel
 
         public decimal itemAmount { get; set; }
 
-     /*   public int unitId { get; set; }*/
+        /*   public int unitId { get; set; }*/
         public string itemName { get; set; }
         public string itemCode { get; set; }
         public string unitName { get; set; }
@@ -92,7 +94,7 @@ namespace PosApi.ViewModels.ReceiptViewModel
 
         public decimal receiptGrandTotal { get; set; }
 
-        public  ICollection<receiptdetails> receiptdetails { get; set; } = new List<receiptdetails>();
+        public ICollection<receiptdetails> receiptdetails { get; set; } = new List<receiptdetails>();
     }
 
 
