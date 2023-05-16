@@ -48,32 +48,7 @@ namespace PosApi.Services
             newReceipt.receiptCode += id;
             _posContext.receipts.Add(newReceipt);
             _posContext.SaveChanges();
-          /*  List<receiptdetail> newRD = new List<receiptdetail>();*/
-           /* newReceiptdetail.ForEach(receiptdetail =>
-            {
-                newRD.Add(new Models.receiptdetail()
-                {
-                    receiptId = id,
-
-                    itemId = receiptdetail.itemId,
-                    itemQty = receiptdetail.itemQty,
-                    itemPrice = receiptdetail.itemPrice,
-                    itemDiscount = receiptdetail.itemDiscount,
-                    itemDiscountPercent = receiptdetail.itemDiscountPercent,
-                    itemAmount = receiptdetail.itemAmount,
-                    unitId = receiptdetail.unitId
-                });
-            });
-            _posContext.receiptdetails.AddRange(newRD);
-            _posContext.SaveChanges();*/
-
             return newReceipt.receiptId;
-        }
-        private receipt getOneReceipt()
-        {
-            return (from _receipt in _posContext.receipts
-                    orderby _receipt.receiptId descending
-                    select _receipt).ToList().First();
         }
         private int getLength()
         {
@@ -84,10 +59,9 @@ namespace PosApi.Services
 
         public List<ReceiptAllResponse> getAllReceipts(string startDate = "", string endDate = "")
         {
-            List<ReceiptAllResponse> responses;
             if (startDate == "" && endDate == "")
             {
-                responses = (from _receipt in _posContext.receipts
+                return (from _receipt in _posContext.receipts
                              orderby _receipt.receiptId
                              select new ReceiptAllResponse
                              {
@@ -101,7 +75,7 @@ namespace PosApi.Services
             {
                 DateTime startDateTime = DateTime.Parse(startDate);
                 DateTime endDateTime = DateTime.Parse(endDate);
-                responses = (from _receipt in _posContext.receipts
+                return (from _receipt in _posContext.receipts
                              where DateTime.Compare(startDateTime, _receipt.receiptDate) <= 0 && DateTime.Compare(_receipt.receiptDate, endDateTime) <= 0
                              orderby _receipt.receiptId
                              select new ReceiptAllResponse
@@ -112,7 +86,6 @@ namespace PosApi.Services
                                  receiptGrandTotal = _receipt.receiptGrandTotal,
                              }).ToList();
             }
-            return responses;
         }
 
         public ReceiptOneResponse getOneReceipt(int receiptId)

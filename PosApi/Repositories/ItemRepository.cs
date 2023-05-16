@@ -14,19 +14,18 @@ namespace PosApi.Services
         }
         public List<ItemResponse> getAllItems()
         {
-            List<ItemResponse> responses = (from item in _posContext.items
-                                            join _unit in _posContext.units on item.unitId equals _unit.unitId
-                                            orderby item.itemId
-                                            select new ItemResponse
-                                            {
-                                                unitId = item.unitId,
-                                                itemName = item.itemName,
-                                                itemPrice = item.itemPrice,
-                                                itemCode = item.itemCode,
-                                                itemId = item.itemId,
-                                                unitName = _unit.unitName
-                                            }).ToList();
-            return responses;
+            return (from item in _posContext.items
+                    join _unit in _posContext.units on item.unitId equals _unit.unitId
+                    orderby item.itemId
+                    select new ItemResponse
+                    {
+                        unitId = item.unitId,
+                        itemName = item.itemName,
+                        itemPrice = item.itemPrice,
+                        itemCode = item.itemCode,
+                        itemId = item.itemId,
+                        unitName = _unit.unitName
+                    }).ToList(); ;
         }
         public int createItem(item newItem)
         {
