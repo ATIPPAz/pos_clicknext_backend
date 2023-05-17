@@ -19,27 +19,13 @@ namespace PosApi.Services
         {
             List<unit> units = (from unit in _posContext.units
                                 select unit).ToList();
-            
+
             return units;
         }
         public int createUnit(unit newUnit)
         {
-
-            using (IDbContextTransaction transaction = _posContext.Database.BeginTransaction())
-            {
-                try
-                {
-                    _posContext.units.Add(newUnit);
-                    _posContext.SaveChanges();
-                    transaction.Commit();
-                }
-                catch (Exception ex)
-                {
-                    transaction.Rollback();
-                    throw;
-                }
-            }
-
+            _posContext.units.Add(newUnit);
+            _posContext.SaveChanges();
             return newUnit.unitId;
         }
         public void deleteUnit(int id)
