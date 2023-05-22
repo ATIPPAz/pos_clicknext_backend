@@ -1,4 +1,5 @@
-﻿using PosApi.Context;
+﻿using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
+using PosApi.Context;
 using PosApi.Models;
 using PosApi.ViewModels;
 using PosApi.ViewModels.ReceiptViewModel;
@@ -41,11 +42,24 @@ namespace PosApi.Services
 
         }
 
-
+        public PrefixViewModel getPrefix()
+        {
+            PrefixViewModel res = new PrefixViewModel();
+            res.prefix_keyName = (from _prefix in _posContext.prefix_keys
+                                  select _prefix).ToList().First().prefix_keyName;
+            return res;
+        }
         public int createReceipts(receipt newReceipt)
         {
-            int id = getLength() + 1;
-            newReceipt.receiptCode += id;
+            char prefix = getPrefix().prefix_keyName.ToCharArray()[0];
+            receipt oldReceipt = (from _receipt in _posContext.receipts
+             orderby _receipt.receiptId descending
+             select _receipt).First();
+            int idReceipt = Convert.ToInt32(oldReceipt.receiptCode.Split(prefix)[1]);
+            idReceipt +=1;
+            string id = idReceipt.ToString().PadLeft(4, '0');
+           
+            newReceipt.receiptCode += prefix + id;
             _posContext.receipts.Add(newReceipt);
             _posContext.SaveChanges();
             return newReceipt.receiptId;
@@ -136,6 +150,7 @@ namespace PosApi.Services
                 receiptTotalBeforeDiscount = result.receiptTotalBeforeDiscount,
                 receiptTotalDiscount = result.receiptTotalDiscount,
                 receiptSubTotal = result.receiptSubTotal,
+                receiptTradeDiscount= result.receiptTradeDiscount
             };
 
             result.receiptdetails.ToList().ForEach(receiptDetails =>

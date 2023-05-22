@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using PosApi.Context;
 using PosApi.helpers;
 using PosApi.Models;
 using PosApi.Services;
+using PosApi.ViewModels;
 using PosApi.ViewModels.ItemViewModel;
 using PosApi.ViewModels.ReceiptViewModel;
 using System.Transactions;
@@ -55,10 +57,23 @@ namespace PosApi.Controllers
             }
         }
 
+        [HttpGet]
+        public IActionResult getPrefix()
+        {
+            try
+            {
+                return responseHelper.JsonGet<PrefixViewModel>(receiptService.getPrefix());
+            }
+            catch (Exception ex)
+            {
+                logger.LogInformation(ex.Message);
+                return responseHelper.JsonError();
+            }
+        }
+
         [HttpPost]
         public IActionResult createReceipt([FromBody] CreateReceiptRequest itemData)
         {
-            if (string.IsNullOrEmpty(itemData.receiptCode)) return responseHelper.JsonError();
             if (itemData.receiptTotalDiscount < 0) return responseHelper.JsonError();
             if (itemData.receiptTradeDiscount < 0) return responseHelper.JsonError();
             if (itemData.receiptTotalBeforeDiscount < 0) return responseHelper.JsonError();
@@ -79,6 +94,7 @@ namespace PosApi.Controllers
                         receiptTradeDiscount = itemData.receiptTradeDiscount,
                         receiptGrandTotal = itemData.receiptGrandTotal
                     };
+                    logger.LogInformation(newReceipt.receiptGrandTotal.ToString());
                     int receiptId = receiptService.createReceipts(newReceipt);
                     receiptService.createReceiptDetail(itemData.receiptdetails, receiptId);
                     transactionScope.Complete();

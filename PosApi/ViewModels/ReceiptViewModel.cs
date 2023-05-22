@@ -50,13 +50,6 @@ namespace PosApi.ViewModels.ReceiptViewModel
 
     public class receiptdetails
     {
-        /* public int receiptDetailId { get; set; }*/
-
-        /*public int receiptId { get; set; }*/
-
-        /*public int itemId { get; set; }*/
-
-
         public int receiptDetailId { get; set; }
         public int itemQty { get; set; }
 
@@ -67,8 +60,6 @@ namespace PosApi.ViewModels.ReceiptViewModel
         public decimal itemDiscountPercent { get; set; }
 
         public decimal itemAmount { get; set; }
-
-        /*   public int unitId { get; set; }*/
         public string itemName { get; set; }
         public string itemCode { get; set; }
         public string unitName { get; set; }
@@ -100,19 +91,19 @@ namespace PosApi.ViewModels.ReceiptViewModel
 
     public class CreateReceiptDetails
     {
-
+     
         public int receiptId { get; set; }
 
         public int itemId { get; set; }
 
         public int itemQty { get; set; }
-
+    
         public decimal itemPrice { get; set; }
-
+     
         public decimal itemDiscount { get; set; }
-
+  
         public decimal itemDiscountPercent { get; set; }
-
+     
         public decimal itemAmount { get; set; }
 
         public int unitId { get; set; }
@@ -120,21 +111,21 @@ namespace PosApi.ViewModels.ReceiptViewModel
 
     public class CreateReceiptRequest
     {
-
+    
         public string receiptCode { get; set; } = null!;
-
+        [Required]
         public DateTime receiptDate { get; set; }
-
+        [Required]
         public decimal receiptTotalBeforeDiscount { get; set; }
-
+        [Required]
         public decimal receiptTotalDiscount { get; set; }
-
+        [Required]
         public decimal receiptSubTotal { get; set; }
-
+        [Required]
         public decimal receiptTradeDiscount { get; set; }
-
+        [Required]
         public decimal receiptGrandTotal { get; set; }
-
+        [Required]
         public List<CreateReceiptDetails> receiptdetails { get; set; } = new List<CreateReceiptDetails>();
     }
 

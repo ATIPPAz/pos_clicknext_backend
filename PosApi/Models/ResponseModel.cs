@@ -3,8 +3,8 @@
     public enum StatusCode
     {
         successReturn = 200,
-        created= 201,
-        successNoReturn =204,
+        created= 200,
+        successNoReturn =200,
         error = 500,
         notFound = 404,
     }

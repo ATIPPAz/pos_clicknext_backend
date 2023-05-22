@@ -16,6 +16,8 @@ public partial class posContext : DbContext
 
     public virtual DbSet<item> items { get; set; }
 
+    public virtual DbSet<prefix_key> prefix_keys { get; set; }
+
     public virtual DbSet<receipt> receipts { get; set; }
 
     public virtual DbSet<receiptdetail> receiptdetails { get; set; }
@@ -58,6 +60,15 @@ public partial class posContext : DbContext
                 .HasConstraintName("unitId");
         });
 
+        modelBuilder.Entity<prefix_key>(entity =>
+        {
+            entity.HasKey(e => e.prefix_keyId).HasName("PRIMARY");
+
+            entity.ToTable("prefix_key");
+
+            entity.Property(e => e.prefix_keyName).HasMaxLength(45);
+        });
+
         modelBuilder.Entity<receipt>(entity =>
         {
             entity.HasKey(e => e.receiptId).HasName("PRIMARY");
@@ -68,11 +79,11 @@ public partial class posContext : DbContext
 
             entity.Property(e => e.receiptCode).HasMaxLength(45);
             entity.Property(e => e.receiptDate).HasColumnType("datetime");
-            entity.Property(e => e.receiptGrandTotal).HasPrecision(10);
-            entity.Property(e => e.receiptSubTotal).HasPrecision(10);
-            entity.Property(e => e.receiptTotalBeforeDiscount).HasPrecision(10);
-            entity.Property(e => e.receiptTotalDiscount).HasPrecision(10);
-            entity.Property(e => e.receiptTradeDiscount).HasPrecision(10);
+            entity.Property(e => e.receiptGrandTotal).HasPrecision(10, 2);
+            entity.Property(e => e.receiptSubTotal).HasPrecision(10, 2);
+            entity.Property(e => e.receiptTotalBeforeDiscount).HasPrecision(10, 2);
+            entity.Property(e => e.receiptTotalDiscount).HasPrecision(10, 2);
+            entity.Property(e => e.receiptTradeDiscount).HasPrecision(10, 2);
         });
 
         modelBuilder.Entity<receiptdetail>(entity =>
@@ -87,10 +98,10 @@ public partial class posContext : DbContext
 
             entity.HasIndex(e => e.unitId, "unitId_idx");
 
-            entity.Property(e => e.itemAmount).HasPrecision(10);
-            entity.Property(e => e.itemDiscount).HasPrecision(10);
-            entity.Property(e => e.itemDiscountPercent).HasPrecision(10);
-            entity.Property(e => e.itemPrice).HasPrecision(10);
+            entity.Property(e => e.itemAmount).HasPrecision(10, 2);
+            entity.Property(e => e.itemDiscount).HasPrecision(10, 2);
+            entity.Property(e => e.itemDiscountPercent).HasPrecision(10, 2);
+            entity.Property(e => e.itemPrice).HasPrecision(10, 2);
 
             entity.HasOne(d => d.item).WithMany(p => p.receiptdetails)
                 .HasForeignKey(d => d.itemId)
