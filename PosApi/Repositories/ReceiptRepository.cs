@@ -19,7 +19,7 @@ namespace PosApi.Services
         }
 
 
-        public void createReceiptDetail(List<CreateReceiptDetails> newReceiptdetail,int receiptId)
+        public void createReceiptDetail(List<CreateReceiptDetails> newReceiptdetail, int receiptId)
         {
             List<receiptdetail> newRD = new List<receiptdetail>();
             newReceiptdetail.ForEach(receiptdetail =>
@@ -53,22 +53,16 @@ namespace PosApi.Services
         {
             char prefix = getPrefix().prefix_keyName.ToCharArray()[0];
             receipt oldReceipt = (from _receipt in _posContext.receipts
-             orderby _receipt.receiptId descending
-             select _receipt).First();
+                                  orderby _receipt.receiptId descending
+                                  select _receipt).First();
             int idReceipt = Convert.ToInt32(oldReceipt.receiptCode.Split(prefix)[1]);
-            idReceipt +=1;
+            idReceipt += 1;
             string id = idReceipt.ToString().PadLeft(4, '0');
-           
+
             newReceipt.receiptCode += prefix + id;
             _posContext.receipts.Add(newReceipt);
             _posContext.SaveChanges();
             return newReceipt.receiptId;
-        }
-        private int getLength()
-        {
-            return (from _receipt in _posContext.receipts
-                    orderby _receipt.receiptId descending
-                    select _receipt).ToList().Count;
         }
 
         public List<ReceiptAllResponse> getAllReceipts(string startDate = "", string endDate = "")
@@ -76,29 +70,29 @@ namespace PosApi.Services
             if (startDate == "" && endDate == "")
             {
                 return (from _receipt in _posContext.receipts
-                             orderby _receipt.receiptId
-                             select new ReceiptAllResponse
-                             {
-                                 receiptCode = _receipt.receiptCode,
-                                 receiptId = _receipt.receiptId,
-                                 receiptDate = _receipt.receiptDate,
-                                 receiptGrandTotal = _receipt.receiptGrandTotal,
-                             }).ToList();
+                        orderby _receipt.receiptId
+                        select new ReceiptAllResponse
+                        {
+                            receiptCode = _receipt.receiptCode,
+                            receiptId = _receipt.receiptId,
+                            receiptDate = _receipt.receiptDate,
+                            receiptGrandTotal = _receipt.receiptGrandTotal,
+                        }).ToList();
             }
             else
             {
                 DateTime startDateTime = DateTime.Parse(startDate);
                 DateTime endDateTime = DateTime.Parse(endDate);
                 return (from _receipt in _posContext.receipts
-                             where DateTime.Compare(startDateTime, _receipt.receiptDate) <= 0 && DateTime.Compare(_receipt.receiptDate, endDateTime) <= 0
-                             orderby _receipt.receiptId
-                             select new ReceiptAllResponse
-                             {
-                                 receiptCode = _receipt.receiptCode,
-                                 receiptId = _receipt.receiptId,
-                                 receiptDate = _receipt.receiptDate,
-                                 receiptGrandTotal = _receipt.receiptGrandTotal,
-                             }).ToList();
+                        where DateTime.Compare(startDateTime, _receipt.receiptDate) <= 0 && DateTime.Compare(_receipt.receiptDate, endDateTime) <= 0
+                        orderby _receipt.receiptId
+                        select new ReceiptAllResponse
+                        {
+                            receiptCode = _receipt.receiptCode,
+                            receiptId = _receipt.receiptId,
+                            receiptDate = _receipt.receiptDate,
+                            receiptGrandTotal = _receipt.receiptGrandTotal,
+                        }).ToList();
             }
         }
 
@@ -150,7 +144,7 @@ namespace PosApi.Services
                 receiptTotalBeforeDiscount = result.receiptTotalBeforeDiscount,
                 receiptTotalDiscount = result.receiptTotalDiscount,
                 receiptSubTotal = result.receiptSubTotal,
-                receiptTradeDiscount= result.receiptTradeDiscount
+                receiptTradeDiscount = result.receiptTradeDiscount
             };
 
             result.receiptdetails.ToList().ForEach(receiptDetails =>

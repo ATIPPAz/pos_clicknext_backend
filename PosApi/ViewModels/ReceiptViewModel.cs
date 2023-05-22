@@ -91,21 +91,21 @@ namespace PosApi.ViewModels.ReceiptViewModel
 
     public class CreateReceiptDetails
     {
-     
+        [Required]
         public int receiptId { get; set; }
-
+        [Required]
         public int itemId { get; set; }
-
+        [Required]
         public int itemQty { get; set; }
-    
+        [Required]
         public decimal itemPrice { get; set; }
-     
+        [Required]
         public decimal itemDiscount { get; set; }
-  
+        [Required]
         public decimal itemDiscountPercent { get; set; }
-     
+        [Required]
         public decimal itemAmount { get; set; }
-
+        [Required]
         public int unitId { get; set; }
     }
 

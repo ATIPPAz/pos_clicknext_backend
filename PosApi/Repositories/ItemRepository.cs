@@ -25,7 +25,7 @@ namespace PosApi.Services
                         itemCode = item.itemCode,
                         itemId = item.itemId,
                         unitName = _unit.unitName
-                    }).ToList(); ;
+                    }).ToList();
         }
         public int createItem(item newItem)
         {
