@@ -88,7 +88,7 @@ namespace PosApi.Controllers
                 catch (Exception e)
                 {
                     logger.LogError(e.ToString());
-                    transactionScope.Dispose();
+                    
                     return responseHelper.JsonError();
                 }
             }
@@ -110,7 +110,7 @@ namespace PosApi.Controllers
                 catch (Exception ex)
                 {
                     logger.LogError(ex.ToString());
-                    transactionScope.Dispose();
+                    
                     return responseHelper.JsonError();
                 }
             }

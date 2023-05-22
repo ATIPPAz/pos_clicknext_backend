@@ -46,7 +46,8 @@ namespace PosApi.Controllers
         [HttpGet]
         public IActionResult getOneReceipt(int receiptId)
         {
-            if (receiptId <= 0) return responseHelper.JsonError();
+            if (receiptId <= 0) 
+                return responseHelper.JsonError();
             try
             {
                 ReceiptOneResponse result = receiptService.getOneReceipt(receiptId);
@@ -111,7 +112,7 @@ namespace PosApi.Controllers
                 catch (Exception ex)
                 {
                     logger.LogInformation(ex.Message);
-                    transactionScope.Dispose();
+                    
                     return BadRequest(ex.Message);
                 }
             }
