@@ -1,7 +1,9 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.VisualBasic;
 using PosApi.Context;
+using PosApi.Helpers;
 using PosApi.Models;
 using PosApi.Services;
 using PosApi.ViewModels.UnitViewModel;
@@ -222,6 +224,7 @@ builder.Services.AddDbContext<posContext>(
         });
 builder.Services.AddScoped<UnitRepository>();
 builder.Services.AddScoped<ItemRepository>();
+builder.Services.AddSingleton<ResponseHelper>();
 builder.Services.AddScoped<ReceiptRepository>();
 /*try
 {

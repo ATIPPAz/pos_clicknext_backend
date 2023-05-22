@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PosApi.Context;
-using PosApi.helpers;
+using PosApi.Helpers;
 using PosApi.Models;
 using PosApi.Services;
 using PosApi.ViewModels.ItemViewModel;
@@ -17,11 +17,12 @@ namespace PosApi.Controllers
 
         readonly ILogger logger;
         readonly ItemRepository itemService;
-        ResponseHelper responseHelper = new ResponseHelper();
-        public ItemController(ItemRepository itemService, ILogger<ItemController> logger)
+        readonly ResponseHelper responseHelper;
+        public ItemController(ItemRepository itemService, ILogger<ItemController> logger, ResponseHelper responseHelper)
         {
             this.logger = logger;
             this.itemService = itemService;
+            this.responseHelper = responseHelper;
         }
 
 
@@ -43,10 +44,14 @@ namespace PosApi.Controllers
         [HttpPost]
         public IActionResult updateItem([FromBody] UpdateItemRequest req)
         {
-            if (req.itemPrice < 0) return responseHelper.JsonError();
-            if (req.unitId < 0) return responseHelper.JsonError();
-            if (string.IsNullOrEmpty(req.itemName)) return responseHelper.JsonError();
-            if (req.itemId < 0) return responseHelper.JsonError();
+            if (req.itemPrice < 0) 
+                return responseHelper.JsonError();
+            if (req.unitId < 0) 
+                return responseHelper.JsonError();
+            if (string.IsNullOrEmpty(req.itemName)) 
+                return responseHelper.JsonError();
+            if (req.itemId < 0) 
+                return responseHelper.JsonError();
             using (TransactionScope transaction = new TransactionScope())
             {
                 try
@@ -58,7 +63,7 @@ namespace PosApi.Controllers
                 catch (Exception ex)
                 {
                     logger.LogError(ex.Message, ex);
-                    transaction.Dispose();
+                    
                     return responseHelper.JsonError();
                 }
             }
@@ -67,7 +72,8 @@ namespace PosApi.Controllers
         [HttpPost]
         public IActionResult deleteItem([FromBody] DeleteItemRequest req)
         {
-            if (req.itemId <= 0) return responseHelper.JsonError();
+            if (req.itemId <= 0) 
+                return responseHelper.JsonError();
             using (TransactionScope transaction = new TransactionScope())
             {
                 try
@@ -79,7 +85,7 @@ namespace PosApi.Controllers
                 catch (Exception ex)
                 {
                     logger.LogError(ex.Message, ex);
-                    transaction.Dispose();
+                    
                     return responseHelper.JsonError();
                 }
 
@@ -89,10 +95,14 @@ namespace PosApi.Controllers
         [HttpPost]
         public IActionResult createItem([FromBody] ItemCreateRequest itemData)
         {
-            if (string.IsNullOrEmpty(itemData.itemCode)) return responseHelper.JsonError();
-            if (itemData.itemPrice < 0) return responseHelper.JsonError();
-            if (itemData.unitId <= 0) return responseHelper.JsonError();
-            if (string.IsNullOrEmpty(itemData.itemName)) return responseHelper.JsonError();
+            if (string.IsNullOrEmpty(itemData.itemCode)) 
+                return responseHelper.JsonError();
+            if (itemData.itemPrice < 0) 
+                return responseHelper.JsonError();
+            if (itemData.unitId <= 0) 
+                return responseHelper.JsonError();
+            if (string.IsNullOrEmpty(itemData.itemName)) 
+                return responseHelper.JsonError();
             using (TransactionScope transaction = new TransactionScope())
             {
                 try
@@ -111,7 +121,7 @@ namespace PosApi.Controllers
                 catch (Exception ex)
                 {
                     logger.LogError(ex.Message, ex);
-                    transaction.Dispose();
+                    
                     return responseHelper.JsonError();
                 }
             }

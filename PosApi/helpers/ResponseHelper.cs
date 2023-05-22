@@ -3,7 +3,7 @@ using Pomelo.EntityFrameworkCore.MySql.Query.Internal;
 using PosApi.Models;
 using System.Security.AccessControl;
 
-namespace PosApi.helpers
+namespace PosApi.Helpers
 {
     public class ResponseHelper
     {

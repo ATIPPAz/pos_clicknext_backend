@@ -4,6 +4,7 @@ using PosApi.Models;
 using PosApi.ViewModels;
 using PosApi.ViewModels.ReceiptViewModel;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO.Pipes;
 using System.Security.Cryptography.Xml;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
@@ -46,19 +47,31 @@ namespace PosApi.Services
         {
             PrefixViewModel res = new PrefixViewModel();
             res.prefix_keyName = (from _prefix in _posContext.prefix_keys
-                                  select _prefix).ToList().First().prefix_keyName;
+                                  select _prefix).Single().prefix_keyName;
             return res;
         }
         public int createReceipts(receipt newReceipt)
         {
-            char prefix = getPrefix().prefix_keyName.ToCharArray()[0];
+            string prefix = getPrefix().prefix_keyName;
             receipt oldReceipt = (from _receipt in _posContext.receipts
+                                  where _receipt.receiptCode.StartsWith(prefix)
                                   orderby _receipt.receiptId descending
-                                  select _receipt).First();
-            int idReceipt = Convert.ToInt32(oldReceipt.receiptCode.Split(prefix)[1]);
+                                  select _receipt).FirstOrDefault();
+            int idReceipt;
+            if (oldReceipt == null)
+            {
+                idReceipt = 0;
+            }
+            else
+            {
+                string idSub = oldReceipt.receiptCode.Substring(oldReceipt.receiptCode.Length-4, 4);
+                
+                idReceipt = Convert.ToInt32(idSub);
+                
+            }
+
             idReceipt += 1;
             string id = idReceipt.ToString().PadLeft(4, '0');
-
             newReceipt.receiptCode += prefix + id;
             _posContext.receipts.Add(newReceipt);
             _posContext.SaveChanges();
@@ -98,58 +111,43 @@ namespace PosApi.Services
 
         public ReceiptOneResponse getOneReceipt(int receiptId)
         {
-            var query =
-                        from _receipt in _posContext.receipts
+            var receipt = (from _receipt in _posContext.receipts
+                    where _receipt.receiptId == receiptId
+                    select _receipt).Single();
 
-                        join data in (from _receiptDetail in _posContext.receiptdetails
-                                      join _unit in _posContext.units on _receiptDetail.unitId equals _unit.unitId
-                                      join _item in _posContext.items on _receiptDetail.itemId equals _item.itemId
-                                      where _receiptDetail.receiptId == receiptId
-                                      select new
-                                      {
-                                          receiptId = _receiptDetail.receiptId,
-                                          receiptDetailId = _receiptDetail.receiptDetailId,
-                                          itemAmount = _receiptDetail.itemAmount,
-                                          itemDiscount = _receiptDetail.itemDiscount,
-                                          itemDiscountPercent = _receiptDetail.itemDiscountPercent,
-                                          itemName = _item.itemName,
-                                          itemCode = _item.itemCode,
-                                          unitName = _unit.unitName,
-                                          itemQty = _receiptDetail.itemQty,
-                                          itemPrice = _receiptDetail.itemPrice,
+            var details = (from _receiptDetail in _posContext.receiptdetails
+                           join _unit in _posContext.units on _receiptDetail.unitId equals _unit.unitId
+                           join _item in _posContext.items on _receiptDetail.itemId equals _item.itemId
+                           where _receiptDetail.receiptId == receiptId
+                           select new
+                           {
+                               receiptId = _receiptDetail.receiptId,
+                               receiptDetailId = _receiptDetail.receiptDetailId,
+                               itemAmount = _receiptDetail.itemAmount,
+                               itemDiscount = _receiptDetail.itemDiscount,
+                               itemDiscountPercent = _receiptDetail.itemDiscountPercent,
+                               itemName = _item.itemName,
+                               itemCode = _item.itemCode,
+                               unitName = _unit.unitName,
+                               itemQty = _receiptDetail.itemQty,
+                               itemPrice = _receiptDetail.itemPrice,
 
-                                      }
-                                      ) on _receipt.receiptId equals data.receiptId into _receiptListItem
-                        where _receipt.receiptId == receiptId
-                        select new
-                        {
-                            receiptId = _receipt.receiptId,
-                            receiptDate = _receipt.receiptDate,
-                            receiptGrandTotal = _receipt.receiptGrandTotal,
-                            receiptCode = _receipt.receiptCode,
-                            receiptTotalBeforeDiscount = _receipt.receiptTotalBeforeDiscount,
-                            receiptTotalDiscount = _receipt.receiptTotalDiscount,
-                            receiptSubTotal = _receipt.receiptSubTotal,
-                            receiptdetails = _receiptListItem,
-                            receiptTradeDiscount = _receipt.receiptTradeDiscount
-                        };
-
-            var result = query.ToList().First();
+                           }).ToList();
             ReceiptOneResponse responses = new ReceiptOneResponse()
             {
-                receiptId = result.receiptId,
-                receiptDate = result.receiptDate,
-                receiptGrandTotal = result.receiptGrandTotal,
-                receiptCode = result.receiptCode,
-                receiptTotalBeforeDiscount = result.receiptTotalBeforeDiscount,
-                receiptTotalDiscount = result.receiptTotalDiscount,
-                receiptSubTotal = result.receiptSubTotal,
-                receiptTradeDiscount = result.receiptTradeDiscount
+                receiptId = receipt.receiptId,
+                receiptDate = receipt.receiptDate,
+                receiptGrandTotal = receipt.receiptGrandTotal,
+                receiptCode = receipt.receiptCode,
+                receiptTotalBeforeDiscount = receipt.receiptTotalBeforeDiscount,
+                receiptTotalDiscount = receipt.receiptTotalDiscount,
+                receiptSubTotal = receipt.receiptSubTotal,
+                receiptTradeDiscount = receipt.receiptTradeDiscount
             };
 
-            result.receiptdetails.ToList().ForEach(receiptDetails =>
+            foreach (var receiptDetails in details)
             {
-                responses.receiptdetails.Add(new receiptdetails()
+                responses.receiptdetails.Add(new receiptdetails
                 {
 
                     receiptDetailId = receiptDetails.receiptDetailId,
@@ -162,8 +160,7 @@ namespace PosApi.Services
                     itemPrice = receiptDetails.itemPrice,
                     itemQty = receiptDetails.itemQty,
                 });
-            });
-
+            }
             return responses;
         }
 

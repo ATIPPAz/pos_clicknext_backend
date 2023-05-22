@@ -85,7 +85,7 @@ namespace PosApi.ViewModels.ReceiptViewModel
 
         public decimal receiptGrandTotal { get; set; }
 
-        public ICollection<receiptdetails> receiptdetails { get; set; } = new List<receiptdetails>();
+        public List<receiptdetails> receiptdetails { get; set; } = new List<receiptdetails>();
     }
 
 

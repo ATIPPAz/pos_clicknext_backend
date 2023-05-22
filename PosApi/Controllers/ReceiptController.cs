@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using PosApi.Context;
-using PosApi.helpers;
+using PosApi.Helpers;
 using PosApi.Models;
 using PosApi.Services;
 using PosApi.ViewModels;
@@ -16,13 +16,15 @@ namespace PosApi.Controllers
     [Route("[controller]/[action]")]
     public class ReceiptController : ControllerBase
     {
-        readonly ResponseHelper responseHelper = new ResponseHelper();
+        readonly ResponseHelper responseHelper;
         readonly ILogger logger;
         readonly ReceiptRepository receiptService;
-        public ReceiptController(ILogger<ReceiptController> logger, ReceiptRepository receiptService)
+        public ReceiptController(ILogger<ReceiptController> logger, ReceiptRepository receiptService , ResponseHelper responseHelper)
         {
             this.logger = logger;
             this.receiptService = receiptService;
+            this.responseHelper = responseHelper;
+
         }
 
         [HttpGet]
@@ -74,12 +76,18 @@ namespace PosApi.Controllers
         [HttpPost]
         public IActionResult createReceipt([FromBody] CreateReceiptRequest itemData)
         {
-            if (itemData.receiptTotalDiscount < 0) return responseHelper.JsonError();
-            if (itemData.receiptTradeDiscount < 0) return responseHelper.JsonError();
-            if (itemData.receiptTotalBeforeDiscount < 0) return responseHelper.JsonError();
-            if (itemData.receiptGrandTotal < 0) return responseHelper.JsonError();
-            if (itemData.receiptSubTotal < 0) return responseHelper.JsonError();
-            if (itemData.receiptdetails == null) return responseHelper.JsonError();
+            if (itemData.receiptTotalDiscount < 0) 
+                return responseHelper.JsonError();
+            if (itemData.receiptTradeDiscount < 0) 
+                return responseHelper.JsonError();
+            if (itemData.receiptTotalBeforeDiscount < 0) 
+                return responseHelper.JsonError();
+            if (itemData.receiptGrandTotal < 0)
+                return responseHelper.JsonError();
+            if (itemData.receiptSubTotal < 0)
+                return responseHelper.JsonError();
+            if (itemData.receiptdetails == null) 
+                return responseHelper.JsonError();
             using (TransactionScope transactionScope = new TransactionScope())
             {
                 try

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PosApi.Context;
-using PosApi.helpers;
+using PosApi.Helpers;
 using PosApi.Models;
 using PosApi.Services;
 using PosApi.ViewModels.ReceiptViewModel;
@@ -14,13 +14,14 @@ namespace PosApi.Controllers
     [Route("[controller]/[action]")]
     public class UnitController : ControllerBase
     {
-        readonly ResponseHelper responseHelper = new ResponseHelper();
+        readonly ResponseHelper responseHelper;
         readonly ILogger logger;
         readonly UnitRepository unitRepository;
 
-        public UnitController(ILogger<UnitController> logger, UnitRepository unitRepository)
+        public UnitController(ILogger<UnitController> logger, UnitRepository unitRepository, ResponseHelper responseHelper)
         {
             this.logger = logger;
+            this.responseHelper = responseHelper;
             this.unitRepository = unitRepository;
         }
 
@@ -43,8 +44,10 @@ namespace PosApi.Controllers
         [HttpPost]
         public IActionResult updateUnit([FromBody] unitUpdateRequest unit)
         {
-            if (unit.unitId == 0) return responseHelper.JsonError();
-            if (string.IsNullOrEmpty(unit.unitName)) return responseHelper.JsonError();
+            if (unit.unitId == 0) 
+                return responseHelper.JsonError();
+            if (string.IsNullOrEmpty(unit.unitName)) 
+                return responseHelper.JsonError();
             using (TransactionScope transactionScope = new TransactionScope())
             {
                 try
@@ -61,7 +64,6 @@ namespace PosApi.Controllers
                 catch (Exception e)
                 {
                     logger.LogError(e.ToString());
-                    transactionScope.Dispose();
                     return responseHelper.JsonError();
                 }
             }
@@ -71,7 +73,8 @@ namespace PosApi.Controllers
         [HttpPost]
         public IActionResult deleteUnit([FromBody] unitDeleteRequest req)
         {
-            if (req.unitId <= 0) return responseHelper.JsonError();
+            if (req.unitId <= 0)
+                return responseHelper.JsonError();
             using (TransactionScope transactionScope = new TransactionScope())
             {
                 try
@@ -94,7 +97,8 @@ namespace PosApi.Controllers
         [HttpPost]
         public IActionResult createUnit([FromBody] unit unitData)
         {
-            if (string.IsNullOrEmpty(unitData.unitName)) return responseHelper.JsonError();
+            if (string.IsNullOrEmpty(unitData.unitName)) 
+                return responseHelper.JsonError();
             using (TransactionScope transactionScope = new TransactionScope())
             {
                 try
