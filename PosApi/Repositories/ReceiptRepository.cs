@@ -80,9 +80,11 @@ namespace PosApi.Services
 
         public List<ReceiptAllResponse> getAllReceipts(string startDate = "", string endDate = "")
         {
-            if (startDate == "" && endDate == "")
-            {
+            DateTime _temp;
+            DateTime? startDateTime = DateTime.TryParse(startDate, out _temp) ? _temp: (DateTime?)null;
+            DateTime? endDateTime = DateTime.TryParse(endDate, out _temp) ? _temp : (DateTime?)null;
                 return (from _receipt in _posContext.receipts
+                        where (startDateTime == null || startDateTime <= _receipt.receiptDate) && (endDateTime == null || endDateTime >= _receipt.receiptDate)
                         orderby _receipt.receiptId
                         select new ReceiptAllResponse
                         {
@@ -90,23 +92,7 @@ namespace PosApi.Services
                             receiptId = _receipt.receiptId,
                             receiptDate = _receipt.receiptDate,
                             receiptGrandTotal = _receipt.receiptGrandTotal,
-                        }).ToList();
-            }
-            else
-            {
-                DateTime startDateTime = DateTime.Parse(startDate);
-                DateTime endDateTime = DateTime.Parse(endDate);
-                return (from _receipt in _posContext.receipts
-                        where DateTime.Compare(startDateTime, _receipt.receiptDate) <= 0 && DateTime.Compare(_receipt.receiptDate, endDateTime) <= 0
-                        orderby _receipt.receiptId
-                        select new ReceiptAllResponse
-                        {
-                            receiptCode = _receipt.receiptCode,
-                            receiptId = _receipt.receiptId,
-                            receiptDate = _receipt.receiptDate,
-                            receiptGrandTotal = _receipt.receiptGrandTotal,
-                        }).ToList();
-            }
+                       }).ToList();
         }
 
         public ReceiptOneResponse getOneReceipt(int receiptId)

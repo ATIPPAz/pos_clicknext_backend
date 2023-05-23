@@ -52,13 +52,9 @@ namespace PosApi.ViewModels.ReceiptViewModel
     {
         public int receiptDetailId { get; set; }
         public int itemQty { get; set; }
-
         public decimal itemPrice { get; set; }
-
         public decimal itemDiscount { get; set; }
-
         public decimal itemDiscountPercent { get; set; }
-
         public decimal itemAmount { get; set; }
         public string itemName { get; set; }
         public string itemCode { get; set; }
