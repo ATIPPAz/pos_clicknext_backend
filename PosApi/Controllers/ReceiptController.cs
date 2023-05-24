@@ -95,7 +95,6 @@ namespace PosApi.Controllers
                 {
                     receipt newReceipt = new receipt()
                     {
-                        receiptCode = itemData.receiptCode,
                         receiptDate = itemData.receiptDate,
                         receiptTotalBeforeDiscount = itemData.receiptTotalBeforeDiscount,
                         receiptTotalDiscount = itemData.receiptTotalDiscount,
